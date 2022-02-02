@@ -33,7 +33,6 @@ client.connect(err => {
         const des = req.body.des;
         const price = req.body.price;
         const all = { img: file.name, company, email, subject, des, price }
-        console.log(all)
         file.mv(`${__dirname}/photo/${file.name}`, err => {
             if (err) {
                 console.log(err)
@@ -116,18 +115,19 @@ client.connect(err => {
     })
 
     app.post("/makenewadmin",(req,res)=>{
-        const admin = req.body.admin;
-        console.log(admin)
-        adminCollection.insertOne({admin})
+        const email = req.body.email;
+        adminCollection.insertOne({email})
         .then(function (result) {
             res.send(result.insertedCount > 0)
         })
     })
 
     app.post("/isAdmin",(req,res)=>{
-        adminCollection.find({admin:req.body.email})
-        .toArray((err, doctors) => {
-            res.send(doctors.length>0)
+        const email = req.body.email
+        console.log(email);
+        adminCollection.find({email:email})
+        .toArray((err, admin) => {
+            res.send(admin.length > 0)
         })
     })
 
