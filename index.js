@@ -23,6 +23,7 @@ client.connect(err => {
     const userServicecollection = client.db("agency").collection("userservices");
     const userReviewcollection = client.db("agency").collection("userreview");
     const adminServicecollection = client.db("agency").collection("adminservice");
+    const adminCollection = client.db("agency").collection("admin");
 
     app.post("/postuserorder", (req, res) => {
         const file = req.files.file;
@@ -47,7 +48,7 @@ client.connect(err => {
     })
 
     app.get("/getorderedservices", (req, res) => {
-        userServicecollection.find({})
+        userServicecollection.find({email:req.query.email})
             .toArray((err, documents) => {
                 res.send(documents)
             })
@@ -111,6 +112,22 @@ client.connect(err => {
         adminServicecollection.find({})
         .toArray((err,documents)=>{
             res.send(documents)
+        })
+    })
+
+    app.post("/makenewadmin",(req,res)=>{
+        const admin = req.body.admin;
+        console.log(admin)
+        adminCollection.insertOne({admin})
+        .then(function (result) {
+            res.send(result.insertedCount > 0)
+        })
+    })
+
+    app.post("/isAdmin",(req,res)=>{
+        adminCollection.find({admin:req.body.email})
+        .toArray((err, doctors) => {
+            res.send(doctors.length>0)
         })
     })
 
