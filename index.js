@@ -161,4 +161,4 @@ app.get('/', (req, res) => {
 
 const port = 4000;
 
-app.listen(process.env.PORT || port, console.log("successfully running port 4000"))
+app.listen(process.env.PORT || port)
