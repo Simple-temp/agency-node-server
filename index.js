@@ -25,6 +25,7 @@ client.connect(err => {
     const userReviewcollection = client.db("agency").collection("userreview");
     const adminServicecollection = client.db("agency").collection("adminservice");
     const adminCollection = client.db("agency").collection("admin");
+    const massegeCollection = client.db("agency").collection("masseges");
 
     app.post("/postuserorder", (req, res) => {
         const file = req.files.file;
@@ -128,6 +129,24 @@ client.connect(err => {
         adminCollection.find({email:email})
         .toArray((err, admin) => {
             res.send(admin.length > 0)
+        })
+    })
+
+    app.post("/postmassege",(req,res)=>{
+        const message = req.body.message;
+        const email = req.body.email;
+        const name = req.body.name;
+        console.log({message,name,email})
+        massegeCollection.insertOne({message,name,email})
+        .then(function(result){
+            res.send(result.insertedCount > 0)
+        })
+    })
+
+    app.get("/showusermassege",(req,res)=>{
+        massegeCollection.find({})
+        .toArray((err,documents)=>{
+            res.send(documents)
         })
     })
 
