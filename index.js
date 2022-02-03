@@ -6,7 +6,7 @@ const fileUpload = require("express-fileupload")
 const fs = require("fs-extra")
 require("dotenv").config()
 
-const uri = "mongodb+srv://agency:agencypassword@cluster0.ka9ky.mongodb.net/agency?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ka9ky.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express()
@@ -33,34 +33,19 @@ client.connect(err => {
         const subject = req.body.subject;
         const des = req.body.des;
         const price = req.body.price;
-        // const all = { image, company, email, subject, des, price }
-        const filePath = `${__dirname}/photo/${file.name}`;
-        file.mv(filePath, err => {
-            if (err) {
-                console.log(err)
-                return res.status(500).send({ msg: "file not uploaded" })
-            }
-            const newImg = fs.readFileSync(filePath)
-            const encImg = newImg.toString("base64")
+        const newImg = file.data
+        const encImg = newImg.toString("base64")
 
             var image = {
                 contentType : file.mimetype,
                 size : file.size,
-                img : Buffer (encImg,"base64")
+                img : Buffer.from(encImg,"base64")
             }
 
             userServicecollection.insertOne({ image, company, email, subject, des, price })
                 .then(function (result) {
-                    fs.remove(filePath,error =>{
-                        if(error){
-                            console.log(error);
-                            res.status(500).send({ msg: "file not uploaded" })
-                        }
-                    })
                     res.send(result.insertedCount > 0)
-                })
-            // return res.send({ img: file.name, path: `/${file.name}` })
-        })
+            })
     })
 
     app.get("/getorderedservices", (req, res) => {
@@ -76,19 +61,18 @@ client.connect(err => {
         const title = req.body.title;
         const companyName = req.body.companyName;
         const des = req.body.des;
-        const review = { img: file.name, title, companyName, des }
-        console.log(review)
-        file.mv(`${__dirname}/reviewphoto/${file.name}`, err => {
-            if (err) {
-                console.log(err)
-                return res.status(500).send({ msg: "file not uploaded" })
+        const newImg = file.data
+        const encImg = newImg.toString("base64")
+
+            var image = {
+                contentType : file.mimetype,
+                size : file.size,
+                img : Buffer (encImg,"base64")
             }
-            userReviewcollection.insertOne(review)
+            userReviewcollection.insertOne({ image, title, companyName, des })
                 .then(function (result) {
                     res.send(result.insertedCount > 0)
                 })
-            // return res.send({ img: file.name, path: `/${file.name}` })
-        })
     })
 
     app.get("/getfeedback",(req,res)=>{
@@ -109,19 +93,18 @@ client.connect(err => {
         const file = req.files.file;
         const title = req.body.title;
         const des = req.body.des;
-        const addService = {icon:file.name,title,des}
-        file.mv(`${__dirname}/servicesphoto/${file.name}`, err => {
-            if (err) {
-                console.log(err)
-                return res.status(500).send({ msg: "file not uploaded" })
+        const newImg = file.data
+        const encImg = newImg.toString("base64")
+
+            var image = {
+                contentType : file.mimetype,
+                size : file.size,
+                img : Buffer (encImg,"base64")
             }
-            adminServicecollection.insertOne(addService)
+            adminServicecollection.insertOne({image,title,des})
                 .then(function (result) {
                     res.send(result.insertedCount > 0)
                 })
-            // return res.send({ img: file.name, path: `/${file.name}` })
-        })
-
     })
 
     app.get("/getnewservices",(req,res)=>{
